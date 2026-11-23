@@ -45,6 +45,10 @@ Após a estruturação das tabelas, os arquivos foram importados para o Power BI
 
 Após a importação das seis tabelas do Excel, foi realizada a conferência dos tipos de dados no Power Query.
 
+## Documentação Técnica
+
+- [Medidas DAX](medidas-dax.md): fórmulas, descrições e indicadores desenvolvidos no Power BI.
+
 ### Transformações realizadas
 
 - Verificação dos tipos de dados das colunas.
