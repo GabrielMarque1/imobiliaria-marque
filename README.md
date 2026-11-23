@@ -35,6 +35,21 @@ O projeto utiliza seis tabelas principais para organizar as informações da imo
 
 As tabelas estão relacionadas no modelo de dados do Power BI, permitindo cruzar informações e desenvolver análises sobre as operações da imobiliária.
 
+## Origem e Preparação dos Dados
+
+Os dados utilizados no projeto foram desenvolvidos manualmente no Microsoft Excel, por meio da criação de seis tabelas com informações fictícias de uma imobiliária.
+
+Após a estruturação das tabelas, os arquivos foram importados para o Power BI, onde foi desenvolvido o modelo de dados e estabelecidos os relacionamentos entre as tabelas.
+
+### Ferramentas utilizadas nesta etapa
+
+- Microsoft Excel: criação e organização das bases de dados.
+- Power BI: importação dos dados e construção do modelo relacional.
+
+### Natureza dos dados
+
+Todas as informações utilizadas são fictícias e foram criadas exclusivamente para fins de estudo, prática e desenvolvimento do portfólio.
+
 ## Modelo de Dados e Relacionamentos
 
 O modelo de dados foi desenvolvido no Power BI, conectando as seis tabelas por meio de seus respectivos identificadores.
