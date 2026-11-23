@@ -48,6 +48,7 @@ Após a importação das seis tabelas do Excel, foi realizada a conferência dos
 ## Documentação Técnica
 
 - [Medidas DAX](medidas-dax.md): fórmulas, descrições e indicadores desenvolvidos no Power BI.
+- [Dashboards](dashboards.md): organização das páginas, indicadores e visualizações do relatório.
 
 ### Transformações realizadas
 
