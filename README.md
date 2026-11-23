@@ -41,6 +41,19 @@ Os dados utilizados no projeto foram desenvolvidos manualmente no Microsoft Exce
 
 Após a estruturação das tabelas, os arquivos foram importados para o Power BI, onde foi desenvolvido o modelo de dados e estabelecidos os relacionamentos entre as tabelas.
 
+## Tratamento e Transformação dos Dados
+
+Após a importação das seis tabelas do Excel, foi realizada a conferência dos tipos de dados no Power Query.
+
+### Transformações realizadas
+
+- Verificação dos tipos de dados das colunas.
+- Definição de campos como números inteiros.
+- Definição de campos como texto.
+- Correção do caminho de origem do arquivo Excel nas consultas.
+
+Essa etapa teve como objetivo garantir que os dados fossem interpretados corretamente pelo Power BI antes da construção das análises.
+
 ### Ferramentas utilizadas nesta etapa
 
 - Microsoft Excel: criação e organização das bases de dados.
