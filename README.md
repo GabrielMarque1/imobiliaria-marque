@@ -17,5 +17,19 @@ A proposta é utilizar ferramentas de análise de dados para organizar informaç
 - Power BI
 - DAX
 
+## Estrutura dos Dados
+O projeto utiliza seis tabelas principais para organizar as informações da imobiliária:
+
+| Tabela | Descrição |
+|---|---|
+| tabImoveis | Informações e características dos imóveis cadastrados. |
+| tabBairros | Identificação dos bairros e regiões da cidade. |
+| tabClientes | Cadastro e informações dos clientes. |
+| tabCorretores | Cadastro e informações dos corretores. |
+| tabVendas | Registro das transações de venda dos imóveis. |
+| tabAlugueis | Registro das operações de aluguel dos imóveis. |
+
+As tabelas estão relacionadas no modelo de dados do Power BI, permitindo cruzar informações e desenvolver análises sobre as operações da imobiliária.
+
 ## Status do projeto
 Em desenvolvimento.
