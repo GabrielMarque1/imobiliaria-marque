@@ -1,6 +1,7 @@
 # Imobiliária Marque — Análise de Dados
 
-![Capa do painel](docs/capa.png)
+<img width="1280" height="720" alt="capa" src="https://github.com/user-attachments/assets/7461ec76-3593-42da-8a10-9fc7ba5e94e0" />
+
 
 ## Sobre o projeto
 
@@ -77,7 +78,8 @@ No Power Query:
 
 ## Modelo de dados e relacionamentos
 
-![Modelo de dados](docs/modelo-de-dados.png)
+<img width="1600" height="900" alt="modelo-de-dados" src="https://github.com/user-attachments/assets/99fea2b4-a78b-4840-86fd-490cd0fb6a4d" />
+
 
 | Tabela de origem | Coluna de origem | Tabela relacionada | Coluna relacionada | Status |
 |---|---|---|---|---|
@@ -151,4 +153,4 @@ Próximos passos:
 
 ## Autor
 
-**Gabriel Marque** · [LinkedIn](https://www.linkedin.com/in/seu-perfil)
+**Gabriel Marque** · [LinkedIn](https://www.linkedin.com/in/gabriel-oliveira-de-marque/)
