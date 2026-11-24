@@ -1,0 +1,58 @@
+table dClientes
+	lineageTag: 831fc181-6a09-41ed-a4b9-c4949dfa8c83
+
+	column ID_Cliente
+		dataType: string
+		isHidden
+		lineageTag: 63cfd7fd-11b5-4670-bac8-ef17c5b3a191
+		summarizeBy: none
+		sourceColumn: ID_Cliente
+
+		annotation SummarizationSetBy = User
+
+	column Nome_Cliente
+		dataType: string
+		lineageTag: e3252bda-5bc8-458b-83c8-c6abe273bcae
+		summarizeBy: none
+		sourceColumn: Nome_Cliente
+
+		annotation SummarizationSetBy = User
+
+	column Tipo_Cliente
+		dataType: string
+		lineageTag: 64ef691b-fb9a-4beb-9ecb-9d6d29811e7d
+		summarizeBy: none
+		sourceColumn: Tipo_Cliente
+
+		annotation SummarizationSetBy = User
+
+	column Cidade
+		dataType: string
+		lineageTag: 4e0996e7-52a3-4947-bf28-eee5a9ba4f7f
+		summarizeBy: none
+		sourceColumn: Cidade
+
+		annotation SummarizationSetBy = User
+
+	column Data_Cadastro
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: 66b4ec86-fae5-4072-a3df-73c32d1c9b1b
+		summarizeBy: none
+		sourceColumn: Data_Cadastro
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition dClientes = m
+		mode: import
+		source =
+				let
+				    Origem = Excel.Workbook(File.Contents(CaminhoExcel), null, true),
+				    Navegacao = Origem{[Item = "tabClientes", Kind = "Table"]}[Data],
+				    TiposAlterados = Table.TransformColumnTypes(Navegacao, {{"ID_Cliente", type text}, {"Nome_Cliente", type text}, {"Tipo_Cliente", type text}, {"Cidade", type text}, {"Data_Cadastro", type date}})
+				in
+				    TiposAlterados
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,189 @@
+table dImoveis
+	lineageTag: 0d1de465-7820-4c48-9fde-9aaefa3ee0cf
+
+	column ID_Imovel
+		dataType: string
+		lineageTag: ce8f69f6-413d-40b4-b9f0-bd19ea87418e
+		summarizeBy: none
+		sourceColumn: ID_Imovel
+
+		annotation SummarizationSetBy = User
+
+	column ID_Bairro
+		dataType: string
+		isHidden
+		lineageTag: 4be0a28c-e5ff-4c74-b49d-98f202dd5a7f
+		summarizeBy: none
+		sourceColumn: ID_Bairro
+
+		annotation SummarizationSetBy = User
+
+	column Tipo_Imovel
+		dataType: string
+		lineageTag: 41958fb1-5246-4110-b6e5-522fd89dc924
+		summarizeBy: none
+		sourceColumn: Tipo_Imovel
+
+		annotation SummarizationSetBy = User
+
+	column ID_Proprietario
+		dataType: string
+		isHidden
+		lineageTag: d22c9a94-406c-4fe0-b812-e0009a1329b7
+		summarizeBy: none
+		sourceColumn: ID_Proprietario
+
+		annotation SummarizationSetBy = User
+
+	column Finalidade
+		dataType: string
+		lineageTag: 3cadc1a3-92cf-456c-b2d1-296f7c81a1d0
+		summarizeBy: none
+		sourceColumn: Finalidade
+
+		annotation SummarizationSetBy = User
+
+	column Area_M2
+		dataType: int64
+		formatString: #,0 "m²"
+		lineageTag: c342fca6-69ef-4d29-9089-a38d72a664d5
+		summarizeBy: none
+		sourceColumn: Area_M2
+
+		annotation SummarizationSetBy = User
+
+	column Quartos
+		dataType: int64
+		formatString: 0
+		lineageTag: 3b161277-9360-4fb5-b160-2c872d3a4288
+		summarizeBy: none
+		sourceColumn: Quartos
+
+		annotation SummarizationSetBy = User
+
+	column Banheiros
+		dataType: int64
+		formatString: 0
+		lineageTag: f1fee7e3-1d7f-4485-aac6-f584650bdf3e
+		summarizeBy: none
+		sourceColumn: Banheiros
+
+		annotation SummarizationSetBy = User
+
+	column Vagas_Garagem
+		dataType: int64
+		formatString: 0
+		lineageTag: e0e5b418-3fad-4d02-b18e-fc4afc9fba97
+		summarizeBy: none
+		sourceColumn: Vagas_Garagem
+
+		annotation SummarizationSetBy = User
+
+	column Valor_Anunciado
+		dataType: int64
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		lineageTag: 0113b429-5192-40c0-8073-7c4d0a62d997
+		summarizeBy: none
+		sourceColumn: Valor_Anunciado
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	column Valor_Aluguel_Anunciado
+		dataType: int64
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		lineageTag: 7d41bd0f-1d1a-4142-a632-adfad3f15743
+		summarizeBy: none
+		sourceColumn: Valor_Aluguel_Anunciado
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	column Status
+		dataType: string
+		lineageTag: 5b5e8b08-2971-4bc3-929a-11b9cf32b6eb
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = User
+
+	column Data_Cadastro
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: 53c07270-f1b6-492b-b300-be4684987a17
+		summarizeBy: none
+		sourceColumn: Data_Cadastro
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Mobiliado
+		dataType: string
+		lineageTag: b0ddec5e-9a10-4cc2-903e-6011673532d0
+		summarizeBy: none
+		sourceColumn: Mobiliado
+
+		annotation SummarizationSetBy = User
+
+	column Tem_Academia
+		dataType: string
+		lineageTag: bf3590f4-d33c-4482-a8a5-0294fe8338d2
+		summarizeBy: none
+		sourceColumn: Tem_Academia
+
+		annotation SummarizationSetBy = User
+
+	column Tem_Area_Jogos
+		dataType: string
+		lineageTag: 3f45b639-601a-4f4b-8f52-03622de59bb5
+		summarizeBy: none
+		sourceColumn: Tem_Area_Jogos
+
+		annotation SummarizationSetBy = User
+
+	column Tem_Area_Lazer
+		dataType: string
+		lineageTag: 1824387f-e119-409d-bf08-b0b3d57687e3
+		summarizeBy: none
+		sourceColumn: Tem_Area_Lazer
+
+		annotation SummarizationSetBy = User
+
+	column Tem_Piscina
+		dataType: string
+		lineageTag: c9f8bbf8-efca-4b97-844a-1e66316f981f
+		summarizeBy: none
+		sourceColumn: Tem_Piscina
+
+		annotation SummarizationSetBy = User
+
+	column Tem_Sacada
+		dataType: string
+		lineageTag: fd97dec5-4a86-4f8e-824a-9af6328e524c
+		summarizeBy: none
+		sourceColumn: Tem_Sacada
+
+		annotation SummarizationSetBy = User
+
+	column Aceita_Pet
+		dataType: string
+		lineageTag: d18ef6bf-6914-4303-9d8c-5097c1b94ac2
+		summarizeBy: none
+		sourceColumn: Aceita_Pet
+
+		annotation SummarizationSetBy = User
+
+	partition dImoveis = m
+		mode: import
+		source =
+				let
+				    Origem = Excel.Workbook(File.Contents(CaminhoExcel), null, true),
+				    Navegacao = Origem{[Item = "tabImoveis", Kind = "Table"]}[Data],
+				    TiposAlterados = Table.TransformColumnTypes(Navegacao, {{"ID_Imovel", type text}, {"ID_Bairro", type text}, {"Tipo_Imovel", type text}, {"ID_Proprietario", type text}, {"Finalidade", type text}, {"Area_M2", Int64.Type}, {"Quartos", Int64.Type}, {"Banheiros", Int64.Type}, {"Vagas_Garagem", Int64.Type}, {"Valor_Anunciado", Int64.Type}, {"Valor_Aluguel_Anunciado", Int64.Type}, {"Status", type text}, {"Data_Cadastro", type date}, {"Mobiliado", type text}, {"Tem_Academia", type text}, {"Tem_Area_Jogos", type text}, {"Tem_Area_Lazer", type text}, {"Tem_Piscina", type text}, {"Tem_Sacada", type text}, {"Aceita_Pet", type text}})
+				in
+				    TiposAlterados
+
+	annotation PBI_ResultType = Table

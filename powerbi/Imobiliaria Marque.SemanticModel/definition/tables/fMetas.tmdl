@@ -1,0 +1,38 @@
+table fMetas
+	lineageTag: bddc7cf3-5733-4ab5-bf8c-d495473e4a1a
+
+	column Mes_Referencia
+		dataType: dateTime
+		isHidden
+		formatString: mmm/yyyy
+		lineageTag: 02120ff1-1bfe-4824-97ac-56abd5c06ffe
+		summarizeBy: none
+		sourceColumn: Mes_Referencia
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Meta_Faturamento
+		dataType: int64
+		isHidden
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		lineageTag: d5bd6ca2-92ac-4e57-8d9b-f1416125e80f
+		summarizeBy: none
+		sourceColumn: Meta_Faturamento
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	partition fMetas = m
+		mode: import
+		source =
+				let
+				    Origem = Excel.Workbook(File.Contents(CaminhoExcel), null, true),
+				    Navegacao = Origem{[Item = "tabMetas", Kind = "Table"]}[Data],
+				    TiposAlterados = Table.TransformColumnTypes(Navegacao, {{"Mes_Referencia", type date}, {"Meta_Faturamento", Int64.Type}})
+				in
+				    TiposAlterados
+
+	annotation PBI_ResultType = Table

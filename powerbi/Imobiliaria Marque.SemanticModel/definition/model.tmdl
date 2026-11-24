@@ -1,0 +1,25 @@
+model Model
+	culture: pt-BR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: pt-BR
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["CaminhoExcel","fVendas","fAlugueis","fMetas","dImoveis","dCorretores","dClientes","dBairros"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table fVendas
+ref table fAlugueis
+ref table fMetas
+ref table dImoveis
+ref table dCorretores
+ref table dClientes
+ref table dBairros
+ref table dCalendario
+ref table _Medidas

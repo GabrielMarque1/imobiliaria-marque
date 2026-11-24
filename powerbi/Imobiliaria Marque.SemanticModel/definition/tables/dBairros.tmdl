@@ -1,0 +1,39 @@
+table dBairros
+	lineageTag: 3c3df09d-70d0-4758-a9c9-8e965b31b3bc
+
+	column ID_Bairro
+		dataType: string
+		isHidden
+		lineageTag: 8cdfa027-ddd1-4c2b-bf10-cdcaa187e345
+		summarizeBy: none
+		sourceColumn: ID_Bairro
+
+		annotation SummarizationSetBy = User
+
+	column Nome_Bairro
+		dataType: string
+		lineageTag: df147695-b648-4b03-a685-e2bfc29cc529
+		summarizeBy: none
+		sourceColumn: Nome_Bairro
+
+		annotation SummarizationSetBy = User
+
+	column Regiao_Cidade
+		dataType: string
+		lineageTag: 647c48b6-ce16-4c42-853f-8eedf8303e18
+		summarizeBy: none
+		sourceColumn: Regiao_Cidade
+
+		annotation SummarizationSetBy = User
+
+	partition dBairros = m
+		mode: import
+		source =
+				let
+				    Origem = Excel.Workbook(File.Contents(CaminhoExcel), null, true),
+				    Navegacao = Origem{[Item = "tabBairros", Kind = "Table"]}[Data],
+				    TiposAlterados = Table.TransformColumnTypes(Navegacao, {{"ID_Bairro", type text}, {"Nome_Bairro", type text}, {"Regiao_Cidade", type text}})
+				in
+				    TiposAlterados
+
+	annotation PBI_ResultType = Table

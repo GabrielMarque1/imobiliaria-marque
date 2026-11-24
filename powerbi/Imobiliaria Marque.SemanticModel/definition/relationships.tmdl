@@ -1,0 +1,65 @@
+relationship c6edd81e-d73e-44a9-98b0-f135099915cf
+	fromColumn: fVendas.ID_Imovel
+	toColumn: dImoveis.ID_Imovel
+
+relationship 6b780781-1e57-45d3-a597-4841aada7a19
+	fromColumn: fVendas.ID_Corretor
+	toColumn: dCorretores.ID_Corretor
+
+relationship 97aed5fe-a5e4-4008-8fcc-0dc387a93bb9
+	fromColumn: fVendas.ID_Cliente
+	toColumn: dClientes.ID_Cliente
+
+relationship 6ad3753f-25e0-4c7a-afea-ec305d803fe6
+	fromColumn: fVendas.Data_Venda
+	toColumn: dCalendario.Data
+
+relationship cfdeb654-61b8-43da-819b-a94125ed2fbc
+	fromColumn: fAlugueis.ID_Imovel
+	toColumn: dImoveis.ID_Imovel
+
+relationship ab4617f9-d8c8-447f-a7df-3debc90b47cb
+	fromColumn: fAlugueis.ID_Corretor
+	toColumn: dCorretores.ID_Corretor
+
+relationship c6c28114-1818-4575-a95d-182997d257b8
+	fromColumn: fAlugueis.ID_Cliente
+	toColumn: dClientes.ID_Cliente
+
+relationship 952991f1-bf1b-40e7-9263-8fbc1069469d
+	fromColumn: fAlugueis.Data_Inicio
+	toColumn: dCalendario.Data
+
+relationship 6bf0cae9-3391-4327-a14d-eb3f1c50bcc4
+	isActive: false
+	fromColumn: fAlugueis.Data_Fim
+	toColumn: dCalendario.Data
+
+relationship 4f0ab865-e38a-47e7-abeb-43411adfd652
+	fromColumn: fMetas.Mes_Referencia
+	toColumn: dCalendario.Data
+
+relationship 4380339c-c9b3-4770-b47b-068ce50f9aad
+	fromColumn: dImoveis.ID_Bairro
+	toColumn: dBairros.ID_Bairro
+
+relationship cdf3fda5-aab3-4595-9166-981af8fde479
+	isActive: false
+	fromColumn: dImoveis.ID_Proprietario
+	toColumn: dClientes.ID_Cliente
+
+relationship 61723acb-69fa-4be4-9d48-b834e35227cf
+	isActive: false
+	fromColumn: dImoveis.Data_Cadastro
+	toColumn: dCalendario.Data
+
+relationship f941a39c-e50a-4068-917c-295d2f472236
+	isActive: false
+	fromColumn: dClientes.Data_Cadastro
+	toColumn: dCalendario.Data
+
+relationship ba429728-c4f8-4e36-adf2-3f41252e868e
+	isActive: false
+	fromColumn: dCorretores.Data_Contratacao
+	toColumn: dCalendario.Data
+

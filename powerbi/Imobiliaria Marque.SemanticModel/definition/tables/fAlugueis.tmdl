@@ -1,0 +1,99 @@
+table fAlugueis
+	lineageTag: f4a0f36c-9e9a-469b-a6ce-b0b60a09bc9c
+
+	column ID_Aluguel
+		dataType: string
+		lineageTag: 95b57b29-22e3-4939-8c77-90a15d5316a7
+		summarizeBy: none
+		sourceColumn: ID_Aluguel
+
+		annotation SummarizationSetBy = User
+
+	column ID_Imovel
+		dataType: string
+		isHidden
+		lineageTag: aba0ddfd-ec83-4d6e-9346-efdfcf658292
+		summarizeBy: none
+		sourceColumn: ID_Imovel
+
+		annotation SummarizationSetBy = User
+
+	column ID_Corretor
+		dataType: string
+		isHidden
+		lineageTag: 1bf8239f-054f-4a38-bff7-889ac95cbe14
+		summarizeBy: none
+		sourceColumn: ID_Corretor
+
+		annotation SummarizationSetBy = User
+
+	column ID_Cliente
+		dataType: string
+		isHidden
+		lineageTag: d93ae417-9003-4d86-8ac4-4e6577714169
+		summarizeBy: none
+		sourceColumn: ID_Cliente
+
+		annotation SummarizationSetBy = User
+
+	column Data_Inicio
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: 378a128d-ef50-4c9a-bbbd-5fcb6c399859
+		summarizeBy: none
+		sourceColumn: Data_Inicio
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Data_Fim
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: f45c3d66-d112-45df-af53-4d786434c8a9
+		summarizeBy: none
+		sourceColumn: Data_Fim
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Valor_Mensal
+		dataType: int64
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		lineageTag: 038dbb13-bd47-4bb8-b60f-7cefb4e0c5c6
+		summarizeBy: none
+		sourceColumn: Valor_Mensal
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	column Taxa_Administracao
+		dataType: double
+		formatString: 0%
+		lineageTag: 5b836d54-9625-401d-873c-9ac6186c563d
+		summarizeBy: none
+		sourceColumn: Taxa_Administracao
+
+		annotation SummarizationSetBy = User
+
+	column Status
+		dataType: string
+		lineageTag: 553c2df6-4e83-40c9-8390-2e6819aefa8d
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = User
+
+	partition fAlugueis = m
+		mode: import
+		source =
+				let
+				    Origem = Excel.Workbook(File.Contents(CaminhoExcel), null, true),
+				    Navegacao = Origem{[Item = "tabAlugueis", Kind = "Table"]}[Data],
+				    TiposAlterados = Table.TransformColumnTypes(Navegacao, {{"ID_Aluguel", type text}, {"ID_Imovel", type text}, {"ID_Corretor", type text}, {"ID_Cliente", type text}, {"Data_Inicio", type date}, {"Data_Fim", type date}, {"Valor_Mensal", Int64.Type}, {"Taxa_Administracao", type number}, {"Status", type text}})
+				in
+				    TiposAlterados
+
+	annotation PBI_ResultType = Table

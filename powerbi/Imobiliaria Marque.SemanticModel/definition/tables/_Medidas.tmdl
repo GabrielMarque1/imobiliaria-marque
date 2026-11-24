@@ -1,0 +1,630 @@
+table _Medidas
+	lineageTag: ddd89317-b317-448e-a0ab-e63603a9d5bc
+
+	/// Último dia do mês mais recente com movimentação. Indicadores de situação (contratos ativos, a vencer, estoque) são calculados nesta data.
+	measure 'Data de Referência' =
+			VAR _UltimaVenda = CALCULATE ( MAX ( fVendas[Data_Venda] ), REMOVEFILTERS () )
+			VAR _UltimoContrato = CALCULATE ( MAX ( fAlugueis[Data_Inicio] ), REMOVEFILTERS () )
+			RETURN
+			    EOMONTH ( MAX ( _UltimaVenda, _UltimoContrato ), 0 )
+		formatString: dd/mm/yyyy
+		displayFolder: 0. Geral
+		lineageTag: 89a95499-1554-4521-9664-2e095ccc8128
+
+	/// Soma do valor das vendas fechadas.
+	measure Faturamento = SUM ( fVendas[Valor_Venda] )
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 1. Vendas
+		lineageTag: 7ee68159-5e8d-485b-8bd4-66697be1b687
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Quantidade de vendas fechadas.
+	measure 'Qtd Vendas' = COUNTROWS ( fVendas )
+		formatString: #,0
+		displayFolder: 1. Vendas
+		lineageTag: f7c44e9c-fbdc-4713-b200-61d9b480feb9
+
+	/// Valor médio por venda.
+	measure 'Ticket Médio' = DIVIDE ( [Faturamento], [Qtd Vendas] )
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 1. Vendas
+		lineageTag: 4dc92d53-2484-452a-887f-850aed293963
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Comissões geradas pelas vendas.
+	measure 'Comissões' = SUM ( fVendas[Valor_Comissao] )
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 1. Vendas
+		lineageTag: 18c762c4-5c0d-40a2-83e6-6563af08c129
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Comissões ÷ faturamento (ponderada pelo valor de venda).
+	measure 'Taxa de Comissão Efetiva' = DIVIDE ( [Comissões], [Faturamento] )
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: 1. Vendas
+		lineageTag: 336e8c21-c800-4c8d-96e4-192bf36ab96a
+
+	/// Quanto, em média, o valor fechado ficou abaixo do valor anunciado.
+	measure 'Desconto Médio na Negociação' =
+			VAR _Anunciado = SUMX ( fVendas, RELATED ( dImoveis[Valor_Anunciado] ) )
+			RETURN
+			    IF ( _Anunciado > 0, 1 - DIVIDE ( [Faturamento], _Anunciado ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 1. Vendas
+		lineageTag: 26007d5e-b4b7-46ee-b37d-12287f65bf57
+
+	/// Dias entre o cadastro do imóvel e a venda.
+	measure 'Tempo Médio de Venda (dias)' =
+			AVERAGEX (
+			    fVendas,
+			    DATEDIFF ( RELATED ( dImoveis[Data_Cadastro] ), fVendas[Data_Venda], DAY )
+			)
+		formatString: 0
+		displayFolder: 1. Vendas
+		lineageTag: a0b34d50-9b18-49b0-8f0d-7f782bf4d6b0
+
+	/// Meta de faturamento dos meses até a data de referência.
+	measure 'Meta de Faturamento' =
+			VAR _Ref = [Data de Referência]
+			RETURN
+			    CALCULATE ( SUM ( fMetas[Meta_Faturamento] ), KEEPFILTERS ( dCalendario[Data] <= _Ref ) )
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 1. Vendas
+		lineageTag: 08dc65e0-01ec-4a5e-b50e-c8a421fe35d2
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Faturamento ÷ meta do período.
+	measure '% da Meta Atingida' = DIVIDE ( [Faturamento], [Meta de Faturamento] )
+		formatString: 0%
+		displayFolder: 1. Vendas
+		lineageTag: 95cd234d-26ff-4fa5-98a7-9d6515ef3110
+
+	/// Valor de venda por m² (exceto terrenos, que distorcem a média).
+	measure 'Preço Médio do m²' =
+			CALCULATE (
+			    DIVIDE ( [Faturamento], SUMX ( fVendas, RELATED ( dImoveis[Area_M2] ) ) ),
+			    dImoveis[Tipo_Imovel] <> "Terreno"
+			)
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 1. Vendas
+		lineageTag: 4fed6dac-5646-42d6-9165-7b17828059df
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Participação do corretor no faturamento total do período.
+	measure 'Participação no Faturamento' = DIVIDE ( [Faturamento], CALCULATE ( [Faturamento], REMOVEFILTERS ( dCorretores ) ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 1. Vendas
+		lineageTag: fb96c33b-b026-402e-89c5-b5ca9efac314
+
+	/// Contratos vigentes na data de referência.
+	measure 'Contratos Ativos' = CALCULATE ( COUNTROWS ( fAlugueis ), fAlugueis[Status] = "Ativo", REMOVEFILTERS ( dCalendario ) )
+		formatString: #,0
+		displayFolder: 2. Aluguéis
+		lineageTag: e77bfde1-d402-4481-9782-fd230f24b12a
+
+	/// Soma dos aluguéis mensais dos contratos ativos.
+	measure 'Receita Mensal de Aluguéis' =
+			CALCULATE (
+			    SUM ( fAlugueis[Valor_Mensal] ),
+			    fAlugueis[Status] = "Ativo",
+			    REMOVEFILTERS ( dCalendario )
+			)
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 2. Aluguéis
+		lineageTag: 55358a1a-e38a-4c64-a7f4-63e8afe1126a
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Receita mensal da imobiliária com a administração dos contratos ativos.
+	measure 'Taxa de Administração Mensal' =
+			CALCULATE (
+			    SUMX ( fAlugueis, fAlugueis[Valor_Mensal] * fAlugueis[Taxa_Administracao] ),
+			    fAlugueis[Status] = "Ativo",
+			    REMOVEFILTERS ( dCalendario )
+			)
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 2. Aluguéis
+		lineageTag: 857f5f9f-4b06-4b47-8276-733ea9a9338c
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Parte da receita de aluguéis repassada aos proprietários.
+	measure 'Repasse aos Proprietários' = [Receita Mensal de Aluguéis] - [Taxa de Administração Mensal]
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 2. Aluguéis
+		lineageTag: 44245300-881a-4b0d-8c35-3712b4e816b0
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Valor médio do aluguel dos contratos ativos.
+	measure 'Aluguel Médio' = DIVIDE ( [Receita Mensal de Aluguéis], [Contratos Ativos] )
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 2. Aluguéis
+		lineageTag: e21669b3-9e12-4c98-80f0-f24f9e906193
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Contratos iniciados no período (pela data de início).
+	measure 'Novos Contratos' = COUNTROWS ( fAlugueis )
+		formatString: #,0
+		displayFolder: 2. Aluguéis
+		lineageTag: 7b2f39cb-196b-4f3d-a079-6da5d9bf8eb9
+
+	/// Imóveis da carteira que podem ser alugados (não vendidos).
+	measure 'Imóveis para Locação' =
+			CALCULATE (
+			    COUNTROWS ( dImoveis ),
+			    dImoveis[Finalidade] IN { "Aluguel", "Venda e Aluguel" },
+			    dImoveis[Status] <> "Vendido"
+			)
+		formatString: #,0
+		displayFolder: 2. Aluguéis
+		lineageTag: 3fee68e5-6cce-4a09-a22e-66ba04bd8dd0
+
+	/// Imóveis alugados ÷ imóveis disponíveis para locação.
+	measure 'Taxa de Ocupação' = DIVIDE ( [Imóveis Alugados], [Imóveis para Locação] )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 2. Aluguéis
+		lineageTag: 12c1bc3d-c20f-44e8-bba5-d50cd280d803
+
+	/// Contratos ativos que terminam nos próximos 90 dias.
+	measure 'Contratos a Vencer (90 dias)' =
+			VAR _Ref = [Data de Referência]
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( fAlugueis ),
+			        fAlugueis[Status] = "Ativo",
+			        fAlugueis[Data_Fim] > _Ref,
+			        fAlugueis[Data_Fim] <= _Ref + 90,
+			        REMOVEFILTERS ( dCalendario )
+			    ) + 0
+		formatString: #,0
+		displayFolder: 2. Aluguéis
+		lineageTag: 8ff17e0c-ddb5-4703-8bd1-9fbc3163328f
+
+	/// Aluguel mensal dos contratos que vencem nos próximos 90 dias.
+	measure 'Receita a Vencer (90 dias)' =
+			VAR _Ref = [Data de Referência]
+			RETURN
+			    CALCULATE (
+			        SUM ( fAlugueis[Valor_Mensal] ),
+			        fAlugueis[Status] = "Ativo",
+			        fAlugueis[Data_Fim] > _Ref,
+			        fAlugueis[Data_Fim] <= _Ref + 90,
+			        REMOVEFILTERS ( dCalendario )
+			    )
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 2. Aluguéis
+		lineageTag: 7fd49445-f42d-4e01-9752-7599c6dee79a
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Dias até o fim do contrato (só contratos que vencem em até 90 dias).
+	measure 'Dias para Vencer' =
+			VAR _Ref = [Data de Referência]
+			VAR _Fim = MAX ( fAlugueis[Data_Fim] )
+			RETURN
+			    IF (
+			        HASONEVALUE ( fAlugueis[ID_Aluguel] )
+			            && SELECTEDVALUE ( fAlugueis[Status] ) = "Ativo"
+			            && _Fim > _Ref && _Fim <= _Ref + 90,
+			        DATEDIFF ( _Ref, _Fim, DAY )
+			    )
+		formatString: 0
+		displayFolder: 2. Aluguéis
+		lineageTag: cb02ddfe-ab3d-4b39-a5cd-b8a0ad864bfe
+
+	measure 'Data de Vencimento' = IF ( NOT ISBLANK ( [Dias para Vencer] ), MAX ( fAlugueis[Data_Fim] ) )
+		formatString: dd/mm/yyyy
+		displayFolder: 2. Aluguéis
+		lineageTag: c5f76289-5371-4547-86b7-3c1f51410445
+
+	measure 'Aluguel Mensal do Contrato' = IF ( NOT ISBLANK ( [Dias para Vencer] ), SUM ( fAlugueis[Valor_Mensal] ) )
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 2. Aluguéis
+		lineageTag: f56d21b2-8edf-4cf2-b6f3-b0a9c2b89404
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Total de imóveis já cadastrados.
+	measure 'Imóveis Cadastrados' = COUNTROWS ( dImoveis )
+		formatString: #,0
+		displayFolder: 3. Imóveis
+		lineageTag: 680dbb6a-c623-4540-9de9-6182950c6c1d
+
+	/// Imóveis disponíveis + alugados.
+	measure 'Imóveis em Carteira' = CALCULATE ( COUNTROWS ( dImoveis ), dImoveis[Status] <> "Vendido" )
+		formatString: #,0
+		displayFolder: 3. Imóveis
+		lineageTag: 62c849cd-c66d-406d-a41d-60eec7a43e91
+
+	measure 'Imóveis Disponíveis' = CALCULATE ( COUNTROWS ( dImoveis ), dImoveis[Status] = "Disponível" )
+		formatString: #,0
+		displayFolder: 3. Imóveis
+		lineageTag: 9d6ec94e-5a19-401f-acb2-6edbcde0118e
+
+	measure 'Imóveis Alugados' = CALCULATE ( COUNTROWS ( dImoveis ), dImoveis[Status] = "Alugado" )
+		formatString: #,0
+		displayFolder: 3. Imóveis
+		lineageTag: fde1839b-1961-43e9-b9bc-c04ac9b41ee7
+
+	/// Imóveis com venda registrada (inclui imóveis vendidos e depois alugados pela imobiliária).
+	measure 'Imóveis Vendidos' = CALCULATE ( DISTINCTCOUNT ( fVendas[ID_Imovel] ), REMOVEFILTERS ( dCalendario ) )
+		formatString: #,0
+		displayFolder: 3. Imóveis
+		lineageTag: a787e1a2-9c96-40b4-a093-5db1de904a59
+
+	/// Imóveis disponíveis com finalidade de venda.
+	measure 'Imóveis à Venda' =
+			CALCULATE (
+			    COUNTROWS ( dImoveis ),
+			    dImoveis[Status] = "Disponível",
+			    dImoveis[Finalidade] IN { "Venda", "Venda e Aluguel" }
+			)
+		formatString: #,0
+		displayFolder: 3. Imóveis
+		lineageTag: ead40ce1-dcea-462e-8502-0abc3419c2f5
+
+	/// Média do preço de venda anunciado (não inclui valores de aluguel).
+	measure 'Valor Médio Anunciado' = AVERAGE ( dImoveis[Valor_Anunciado] )
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 3. Imóveis
+		lineageTag: aefca9b8-5fe5-4072-ab55-a0c4db372080
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Dias, em média, que os imóveis à venda estão anunciados sem vender.
+	measure 'Dias em Estoque' =
+			VAR _Ref = [Data de Referência]
+			RETURN
+			    AVERAGEX (
+			        FILTER (
+			            dImoveis,
+			            dImoveis[Status] = "Disponível"
+			                && dImoveis[Finalidade] IN { "Venda", "Venda e Aluguel" }
+			        ),
+			        DATEDIFF ( dImoveis[Data_Cadastro], _Ref, DAY )
+			    )
+		formatString: 0
+		displayFolder: 3. Imóveis
+		lineageTag: a9b2906f-ed55-47d9-a118-e82362cd505f
+
+	/// Imóveis à venda há mais de 180 dias: candidatos a revisão de preço.
+	measure 'Imóveis Parados +180 dias' =
+			VAR _Ref = [Data de Referência]
+			RETURN
+			    COUNTROWS (
+			        FILTER (
+			            dImoveis,
+			            dImoveis[Status] = "Disponível"
+			                && dImoveis[Finalidade] IN { "Venda", "Venda e Aluguel" }
+			                && DATEDIFF ( dImoveis[Data_Cadastro], _Ref, DAY ) > 180
+			        )
+			    ) + 0
+		formatString: #,0
+		displayFolder: 3. Imóveis
+		lineageTag: 8ac4ecfb-0e36-4564-95cf-a49b2fa5660a
+
+	measure 'Valor Anunciado em Estoque' =
+			IF (
+			    HASONEVALUE ( dImoveis[ID_Imovel] ) && NOT ISBLANK ( [Dias em Estoque] ),
+			    SUM ( dImoveis[Valor_Anunciado] )
+			)
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 3. Imóveis
+		lineageTag: 7898e935-5c6e-4d02-99f1-a3646045f6aa
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 'Imóveis Cadastrados no Período' = CALCULATE ( [Imóveis Cadastrados], USERELATIONSHIP ( dImoveis[Data_Cadastro], dCalendario[Data] ) )
+		formatString: #,0
+		displayFolder: 3. Imóveis
+		lineageTag: 8a1fc430-01b3-4b86-b348-ced0067e0c0c
+
+	measure 'Corretores Ativos' = CALCULATE ( COUNTROWS ( dCorretores ), dCorretores[Status] = "Ativo" )
+		formatString: #,0
+		displayFolder: 4. Corretores e Clientes
+		lineageTag: 04f3cd44-5ebc-4ea1-828a-977596425796
+
+	/// Clientes cadastrados no período.
+	measure 'Novos Clientes' = CALCULATE ( COUNTROWS ( dClientes ), USERELATIONSHIP ( dClientes[Data_Cadastro], dCalendario[Data] ) )
+		formatString: #,0
+		displayFolder: 4. Corretores e Clientes
+		lineageTag: da311b6f-10ff-4355-837d-5bea7191611a
+
+	/// Faturamento do mesmo período do ano anterior (limitado à data de referência).
+	measure 'Faturamento AA' =
+			VAR _Ref = [Data de Referência]
+			RETURN
+			    IF (
+			        HASONEVALUE ( dCalendario[Ano] ),
+			        IF (
+			            MIN ( dCalendario[Data] ) > _Ref,
+			            CALCULATE ( [Faturamento], SAMEPERIODLASTYEAR ( dCalendario[Data] ) ),
+			            CALCULATE ( [Faturamento], SAMEPERIODLASTYEAR ( dCalendario[Data] ), dCalendario[Data] <= EDATE ( _Ref, -12 ) )
+			        )
+			    )
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 5. Comparativos
+		lineageTag: 3fb4b02b-8947-4209-9a06-c5d60bf9491c
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 'Var % Faturamento' =
+			VAR _Atual = [Faturamento]
+			VAR _Anterior = [Faturamento AA]
+			RETURN
+			    IF ( NOT ISBLANK ( _Anterior ) && NOT ISBLANK ( _Atual ), DIVIDE ( _Atual - _Anterior, _Anterior ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5. Comparativos
+		lineageTag: 76dc68e7-0ec0-4750-88a0-22aafd48adbe
+
+	measure 'Rótulo Var Faturamento' =
+			VAR _Var = [Var % Faturamento]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        NOT HASONEVALUE ( dCalendario[Ano] ), "Selecione um ano para comparar",
+			        ISBLANK ( _Var ), "Sem base no ano anterior",
+			        IF ( _Var >= 0, "▲ ", "▼ " ) & FORMAT ( ABS ( _Var ), "0.0%" ) & " vs " & ( SELECTEDVALUE ( dCalendario[Ano] ) - 1 )
+			    )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: f967b003-e634-4062-be96-841b2cda23d9
+
+	measure 'Cor Var Faturamento' =
+			VAR _Var = [Var % Faturamento]
+			RETURN
+			    SWITCH ( TRUE (), ISBLANK ( _Var ), "#8A9AB8", _Var >= 0, "#1E9E5A", "#D64545" )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: b9f05fbc-91de-409c-8d9d-0c67f912b1e0
+
+	/// Qtd Vendas do mesmo período do ano anterior (limitado à data de referência).
+	measure 'Qtd Vendas AA' =
+			VAR _Ref = [Data de Referência]
+			RETURN
+			    IF (
+			        HASONEVALUE ( dCalendario[Ano] ),
+			        IF (
+			            MIN ( dCalendario[Data] ) > _Ref,
+			            CALCULATE ( [Qtd Vendas], SAMEPERIODLASTYEAR ( dCalendario[Data] ) ),
+			            CALCULATE ( [Qtd Vendas], SAMEPERIODLASTYEAR ( dCalendario[Data] ), dCalendario[Data] <= EDATE ( _Ref, -12 ) )
+			        )
+			    )
+		formatString: #,0
+		displayFolder: 5. Comparativos
+		lineageTag: e8013ecf-1d24-4dc9-b447-0fa84a3e58de
+
+	measure 'Var % Qtd Vendas' =
+			VAR _Atual = [Qtd Vendas]
+			VAR _Anterior = [Qtd Vendas AA]
+			RETURN
+			    IF ( NOT ISBLANK ( _Anterior ) && NOT ISBLANK ( _Atual ), DIVIDE ( _Atual - _Anterior, _Anterior ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5. Comparativos
+		lineageTag: 5137b798-d249-4785-871c-2fcee22dd94e
+
+	measure 'Rótulo Var Qtd Vendas' =
+			VAR _Var = [Var % Qtd Vendas]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        NOT HASONEVALUE ( dCalendario[Ano] ), "Selecione um ano para comparar",
+			        ISBLANK ( _Var ), "Sem base no ano anterior",
+			        IF ( _Var >= 0, "▲ ", "▼ " ) & FORMAT ( ABS ( _Var ), "0.0%" ) & " vs " & ( SELECTEDVALUE ( dCalendario[Ano] ) - 1 )
+			    )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 27c42505-d832-47c9-9437-c36f7d607c21
+
+	measure 'Cor Var Qtd Vendas' =
+			VAR _Var = [Var % Qtd Vendas]
+			RETURN
+			    SWITCH ( TRUE (), ISBLANK ( _Var ), "#8A9AB8", _Var >= 0, "#1E9E5A", "#D64545" )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 5cb4a92b-51a4-4225-8ba9-73920c122df0
+
+	/// Comissões do mesmo período do ano anterior (limitado à data de referência).
+	measure 'Comissões AA' =
+			VAR _Ref = [Data de Referência]
+			RETURN
+			    IF (
+			        HASONEVALUE ( dCalendario[Ano] ),
+			        IF (
+			            MIN ( dCalendario[Data] ) > _Ref,
+			            CALCULATE ( [Comissões], SAMEPERIODLASTYEAR ( dCalendario[Data] ) ),
+			            CALCULATE ( [Comissões], SAMEPERIODLASTYEAR ( dCalendario[Data] ), dCalendario[Data] <= EDATE ( _Ref, -12 ) )
+			        )
+			    )
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 5. Comparativos
+		lineageTag: 6ee0773f-f325-457d-a92f-6292779069f1
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 'Var % Comissões' =
+			VAR _Atual = [Comissões]
+			VAR _Anterior = [Comissões AA]
+			RETURN
+			    IF ( NOT ISBLANK ( _Anterior ) && NOT ISBLANK ( _Atual ), DIVIDE ( _Atual - _Anterior, _Anterior ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5. Comparativos
+		lineageTag: f705d21d-2d28-4b93-b5cf-19a042bb2b6e
+
+	measure 'Rótulo Var Comissões' =
+			VAR _Var = [Var % Comissões]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        NOT HASONEVALUE ( dCalendario[Ano] ), "Selecione um ano para comparar",
+			        ISBLANK ( _Var ), "Sem base no ano anterior",
+			        IF ( _Var >= 0, "▲ ", "▼ " ) & FORMAT ( ABS ( _Var ), "0.0%" ) & " vs " & ( SELECTEDVALUE ( dCalendario[Ano] ) - 1 )
+			    )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 33513689-e588-4766-8a7b-bc22f7fb2c19
+
+	measure 'Cor Var Comissões' =
+			VAR _Var = [Var % Comissões]
+			RETURN
+			    SWITCH ( TRUE (), ISBLANK ( _Var ), "#8A9AB8", _Var >= 0, "#1E9E5A", "#D64545" )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 155a4ca3-11b7-4899-a522-b113dc2ae344
+
+	/// Ticket Médio do mesmo período do ano anterior (limitado à data de referência).
+	measure 'Ticket Médio AA' =
+			VAR _Ref = [Data de Referência]
+			RETURN
+			    IF (
+			        HASONEVALUE ( dCalendario[Ano] ),
+			        IF (
+			            MIN ( dCalendario[Data] ) > _Ref,
+			            CALCULATE ( [Ticket Médio], SAMEPERIODLASTYEAR ( dCalendario[Data] ) ),
+			            CALCULATE ( [Ticket Médio], SAMEPERIODLASTYEAR ( dCalendario[Data] ), dCalendario[Data] <= EDATE ( _Ref, -12 ) )
+			        )
+			    )
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: 5. Comparativos
+		lineageTag: 3939bdeb-f70e-4ab1-afd6-8b053a3481f4
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 'Var % Ticket Médio' =
+			VAR _Atual = [Ticket Médio]
+			VAR _Anterior = [Ticket Médio AA]
+			RETURN
+			    IF ( NOT ISBLANK ( _Anterior ) && NOT ISBLANK ( _Atual ), DIVIDE ( _Atual - _Anterior, _Anterior ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5. Comparativos
+		lineageTag: 086db484-9277-44a1-bed8-ec2daddb5956
+
+	measure 'Rótulo Var Ticket Médio' =
+			VAR _Var = [Var % Ticket Médio]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        NOT HASONEVALUE ( dCalendario[Ano] ), "Selecione um ano para comparar",
+			        ISBLANK ( _Var ), "Sem base no ano anterior",
+			        IF ( _Var >= 0, "▲ ", "▼ " ) & FORMAT ( ABS ( _Var ), "0.0%" ) & " vs " & ( SELECTEDVALUE ( dCalendario[Ano] ) - 1 )
+			    )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 57566aa2-6cb0-4415-baa9-464e06b97da6
+
+	measure 'Cor Var Ticket Médio' =
+			VAR _Var = [Var % Ticket Médio]
+			RETURN
+			    SWITCH ( TRUE (), ISBLANK ( _Var ), "#8A9AB8", _Var >= 0, "#1E9E5A", "#D64545" )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: a5df3967-0be5-405a-bb74-cac6ef0908a4
+
+	/// Novos Contratos do mesmo período do ano anterior (limitado à data de referência).
+	measure 'Novos Contratos AA' =
+			VAR _Ref = [Data de Referência]
+			RETURN
+			    IF (
+			        HASONEVALUE ( dCalendario[Ano] ),
+			        IF (
+			            MIN ( dCalendario[Data] ) > _Ref,
+			            CALCULATE ( [Novos Contratos], SAMEPERIODLASTYEAR ( dCalendario[Data] ) ),
+			            CALCULATE ( [Novos Contratos], SAMEPERIODLASTYEAR ( dCalendario[Data] ), dCalendario[Data] <= EDATE ( _Ref, -12 ) )
+			        )
+			    )
+		formatString: #,0
+		displayFolder: 5. Comparativos
+		lineageTag: 099dcaa9-ffeb-4937-b58a-451718887ec5
+
+	measure 'Var % Novos Contratos' =
+			VAR _Atual = [Novos Contratos]
+			VAR _Anterior = [Novos Contratos AA]
+			RETURN
+			    IF ( NOT ISBLANK ( _Anterior ) && NOT ISBLANK ( _Atual ), DIVIDE ( _Atual - _Anterior, _Anterior ) )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5. Comparativos
+		lineageTag: 9c21eac8-cf13-4738-b042-b540b02c4bf0
+
+	measure 'Rótulo Var Novos Contratos' =
+			VAR _Var = [Var % Novos Contratos]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        NOT HASONEVALUE ( dCalendario[Ano] ), "Selecione um ano para comparar",
+			        ISBLANK ( _Var ), "Sem base no ano anterior",
+			        IF ( _Var >= 0, "▲ ", "▼ " ) & FORMAT ( ABS ( _Var ), "0.0%" ) & " vs " & ( SELECTEDVALUE ( dCalendario[Ano] ) - 1 )
+			    )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 32a4b98e-cc2f-4eee-8510-7f62c56b8d7b
+
+	measure 'Cor Var Novos Contratos' =
+			VAR _Var = [Var % Novos Contratos]
+			RETURN
+			    SWITCH ( TRUE (), ISBLANK ( _Var ), "#8A9AB8", _Var >= 0, "#1E9E5A", "#D64545" )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: edb8214f-ef6d-4f03-b1d5-1c14e3c9d959
+
+	measure 'Rótulo Atualização' = "Dados até " & FORMAT ( [Data de Referência], "dd/mm/yyyy" )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: f07f4bbd-5448-43df-83ad-bd1783f2aceb
+
+	measure 'Rótulo Meta' =
+			VAR _Meta = [Meta de Faturamento]
+			RETURN
+			    IF ( ISBLANK ( _Meta ), "Sem meta cadastrada", "Meta: R$ " & FORMAT ( _Meta / 1000000, "#,0.0" ) & " mi" )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 11882615-08f8-498c-b0a2-ca64ffee65d9
+
+	measure 'Cor Meta' = IF ( [% da Meta Atingida] >= 1, "#1E9E5A", "#D64545" )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 3b9883a6-837a-4c6c-a1a5-28bcdbb53320
+
+	measure 'Rótulo Contratos Ativos' = FORMAT ( [Contratos Ativos], "0" ) & " contratos ativos"
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: dfa20d27-5ff7-4b49-86e4-7a5b91706e35
+
+	measure 'Rótulo Ocupação' = FORMAT ( [Imóveis Alugados], "0" ) & " de " & FORMAT ( [Imóveis para Locação], "0" ) & " imóveis alugados"
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 0ef46124-f643-4bd3-aece-eb12027eb744
+
+	measure 'Rótulo Estoque' = "Em média há " & FORMAT ( [Dias em Estoque], "0" ) & " dias à venda"
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 8b52d009-9779-4ecf-ae22-d13cc793b869
+
+	measure 'Rótulo Receita a Vencer' =
+			VAR _R = [Receita a Vencer (90 dias)]
+			RETURN
+			    IF ( ISBLANK ( _R ), "Nenhum contrato vencendo", "R$ " & FORMAT ( _R, "#,0" ) & "/mês a renovar" )
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: d7ea7ebe-393c-4b22-8619-9962acc232ce
+
+	measure 'Rótulo Carteira' = FORMAT ( [Imóveis Disponíveis], "0" ) & " disponíveis · " & FORMAT ( [Imóveis Alugados], "0" ) & " alugados"
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 7b05b3d3-1292-46a0-81a0-52a16962e57d
+
+	measure 'Rótulo Tempo de Venda' = "entre o cadastro e a venda"
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 3cc015b7-a8c8-4788-bb16-2b1e61c47acb
+
+	measure 'Rótulo Desconto' = "abaixo do valor anunciado"
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: eeacc1f6-5514-4fa7-a085-7bbe6ebc72c6
+
+	measure 'Rótulo Receita Aluguéis' = "Taxa da imobiliária: R$ " & FORMAT ( [Taxa de Administração Mensal], "#,0" ) & "/mês"
+		displayFolder: 6. Rótulos e Cores
+		lineageTag: 760be863-566d-4e7c-95ad-4c146758b0db
+
+	column Value
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 7ec1d1a5-65bc-4285-a361-c00da4fee46d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = User
+
+	partition _Medidas = calculated
+		mode: import
+		source = {0}
+

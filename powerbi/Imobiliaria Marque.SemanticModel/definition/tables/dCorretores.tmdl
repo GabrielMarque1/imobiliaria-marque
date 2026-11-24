@@ -1,0 +1,58 @@
+table dCorretores
+	lineageTag: 22433843-3389-40d3-aa79-b86ba1513800
+
+	column ID_Corretor
+		dataType: string
+		isHidden
+		lineageTag: d1a40542-cdf7-4752-a164-75103a0e2146
+		summarizeBy: none
+		sourceColumn: ID_Corretor
+
+		annotation SummarizationSetBy = User
+
+	column Nome_Corretor
+		dataType: string
+		lineageTag: ff1e8277-459e-443d-9fc1-23331c1cbdb7
+		summarizeBy: none
+		sourceColumn: Nome_Corretor
+
+		annotation SummarizationSetBy = User
+
+	column CRECI
+		dataType: string
+		lineageTag: b28602af-6b3c-4d7a-b010-5a9fb3e6246f
+		summarizeBy: none
+		sourceColumn: CRECI
+
+		annotation SummarizationSetBy = User
+
+	column Data_Contratacao
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: 2d9dae41-1111-4a14-be72-97eacb0133e5
+		summarizeBy: none
+		sourceColumn: Data_Contratacao
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Status
+		dataType: string
+		lineageTag: af865bba-3229-49d2-8231-d201718de038
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = User
+
+	partition dCorretores = m
+		mode: import
+		source =
+				let
+				    Origem = Excel.Workbook(File.Contents(CaminhoExcel), null, true),
+				    Navegacao = Origem{[Item = "tabCorretores", Kind = "Table"]}[Data],
+				    TiposAlterados = Table.TransformColumnTypes(Navegacao, {{"ID_Corretor", type text}, {"Nome_Corretor", type text}, {"CRECI", type text}, {"Data_Contratacao", type date}, {"Status", type text}})
+				in
+				    TiposAlterados
+
+	annotation PBI_ResultType = Table

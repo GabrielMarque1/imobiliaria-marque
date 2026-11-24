@@ -1,0 +1,143 @@
+table dCalendario
+	lineageTag: 55712eb5-0617-45e4-8f03-8e5b64a9721f
+	dataCategory: Time
+
+	column Data
+		dataType: dateTime
+		isKey
+		formatString: dd/mm/yyyy
+		lineageTag: d9bf84b2-058f-4176-aee4-887896dcc47c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Data]
+
+		annotation SummarizationSetBy = User
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Ano
+		dataType: int64
+		formatString: 0
+		lineageTag: 3c73800d-d30f-4b39-ad8a-2bdeffdcf097
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Ano]
+
+		annotation SummarizationSetBy = User
+
+	column 'Mês Nº'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 61562ad3-9928-4d87-ad07-8f3985674cdf
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Mês Nº]
+
+		annotation SummarizationSetBy = User
+
+	column 'Mês'
+		dataType: string
+		lineageTag: c57c22b1-3bfd-40d3-ac52-78aa13853bf1
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Mês]
+		sortByColumn: 'Mês Nº'
+
+		annotation SummarizationSetBy = User
+
+	column 'Mês Abrev'
+		dataType: string
+		lineageTag: 3c09dfbf-857f-4a8d-80bb-133e27206434
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Mês Abrev]
+		sortByColumn: 'Mês Nº'
+
+		annotation SummarizationSetBy = User
+
+	column 'Ano Mês Nº'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 8762fcdc-4dcc-4dc6-9543-49c42158eef3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Ano Mês Nº]
+
+		annotation SummarizationSetBy = User
+
+	column 'Mês Ano'
+		dataType: string
+		lineageTag: eebfd717-81bd-4452-acaf-c0f415e4235e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Mês Ano]
+		sortByColumn: 'Ano Mês Nº'
+
+		annotation SummarizationSetBy = User
+
+	column Trimestre
+		dataType: string
+		lineageTag: a84a225b-cf11-4877-9d1b-729f7e9e1f2e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Trimestre]
+
+		annotation SummarizationSetBy = User
+
+	column 'Dia da Semana Nº'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2ad0101f-ba7d-424b-bb0e-1b10a35c9c64
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Dia da Semana Nº]
+
+		annotation SummarizationSetBy = User
+
+	column 'Dia da Semana'
+		dataType: string
+		lineageTag: aaa94c40-f278-40be-967e-0019a5f72272
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Dia da Semana]
+		sortByColumn: 'Dia da Semana Nº'
+
+		annotation SummarizationSetBy = User
+
+	hierarchy 'Hierarquia de Datas'
+		lineageTag: 7566c8be-1704-4ebc-b5aa-6351c129c4dc
+
+		level Ano
+			lineageTag: ceb4ce61-6358-41b0-b724-f1ecd6a6e0f4
+			column: Ano
+
+		level Trimestre
+			lineageTag: da418d97-2f4e-4748-a6a5-59dfc92211f1
+			column: Trimestre
+
+		level 'Mês'
+			lineageTag: be9333a8-7c23-4658-a3c6-acca814b9097
+			column: 'Mês'
+
+	partition dCalendario = calculated
+		mode: import
+		source =
+				VAR _Inicio = DATE ( YEAR ( MIN ( fVendas[Data_Venda] ) ), 1, 1 )
+				VAR _Fim = DATE ( YEAR ( MAX ( fVendas[Data_Venda] ) ), 12, 31 )
+				RETURN
+				    ADDCOLUMNS (
+				        SELECTCOLUMNS ( CALENDAR ( _Inicio, _Fim ), "Data", [Date] ),
+				        "Ano", YEAR ( [Data] ),
+				        "Mês Nº", MONTH ( [Data] ),
+				        "Mês", UPPER ( LEFT ( FORMAT ( [Data], "mmmm", "pt-BR" ), 1 ) ) & MID ( FORMAT ( [Data], "mmmm", "pt-BR" ), 2, 20 ),
+				        "Mês Abrev", UPPER ( LEFT ( FORMAT ( [Data], "mmm", "pt-BR" ), 1 ) ) & MID ( FORMAT ( [Data], "mmm", "pt-BR" ), 2, 3 ),
+				        "Ano Mês Nº", YEAR ( [Data] ) * 100 + MONTH ( [Data] ),
+				        "Mês Ano", UPPER ( LEFT ( FORMAT ( [Data], "mmm", "pt-BR" ), 1 ) ) & MID ( FORMAT ( [Data], "mmm", "pt-BR" ), 2, 3 ) & "/" & FORMAT ( [Data], "yy" ),
+				        "Trimestre", "T" & QUARTER ( [Data] ),
+				        "Dia da Semana Nº", WEEKDAY ( [Data], 2 ),
+				        "Dia da Semana", UPPER ( LEFT ( FORMAT ( [Data], "dddd", "pt-BR" ), 1 ) ) & MID ( FORMAT ( [Data], "dddd", "pt-BR" ), 2, 20 )
+				    )
+

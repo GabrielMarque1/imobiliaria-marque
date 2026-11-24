@@ -1,0 +1,4 @@
+expression CaminhoExcel = "C:\Users\gabri\Desktop\PROJETOS\Imobiliária Marque\Imobiliaria Marque.xlsx" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+	lineageTag: f9687a7d-9e1b-4a94-94f9-85e4ada40db3
+
+	annotation PBI_ResultType = Text

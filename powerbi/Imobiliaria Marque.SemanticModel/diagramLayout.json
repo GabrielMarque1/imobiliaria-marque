@@ -1,0 +1,139 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 1000,
+            "y": 560
+          },
+          "nodeIndex": "dClientes",
+          "nodeLineageTag": "831fc181-6a09-41ed-a4b9-c4949dfa8c83",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 40,
+            "y": 260
+          },
+          "nodeIndex": "dImoveis",
+          "nodeLineageTag": "0d1de465-7820-4c48-9fde-9aaefa3ee0cf",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 40,
+            "y": 820
+          },
+          "nodeIndex": "dBairros",
+          "nodeLineageTag": "3c3df09d-70d0-4758-a9c9-8e965b31b3bc",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1450,
+            "y": 200
+          },
+          "nodeIndex": "dCalendario",
+          "nodeLineageTag": "55712eb5-0617-45e4-8f03-8e5b64a9721f",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1000,
+            "y": 40
+          },
+          "nodeIndex": "fMetas",
+          "nodeLineageTag": "bddc7cf3-5733-4ab5-bf8c-d495473e4a1a",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1450,
+            "y": 650
+          },
+          "nodeIndex": "_Medidas",
+          "nodeLineageTag": "ddd89317-b317-448e-a0ab-e63603a9d5bc",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1000,
+            "y": 300
+          },
+          "nodeIndex": "dCorretores",
+          "nodeLineageTag": "22433843-3389-40d3-aa79-b86ba1513800",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 520,
+            "y": 40
+          },
+          "nodeIndex": "fVendas",
+          "nodeLineageTag": "d1517f53-ecc9-4502-9a32-1498c71179ee",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 520,
+            "y": 520
+          },
+          "nodeIndex": "fAlugueis",
+          "nodeLineageTag": "f4a0f36c-9e9a-469b-a6ce-b0b60a09bc9c",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "Todas as tabelas",
+      "zoomValue": 80,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "Todas as tabelas",
+  "defaultDiagram": "Todas as tabelas"
+}
