@@ -1,0 +1,75 @@
+{
+  "name": "Imobiliária Marque",
+  "dataColors": [
+    "#1F6FD1",
+    "#0C2D61",
+    "#5AA0F0",
+    "#F29F38",
+    "#2EAD6B",
+    "#8A9AB8",
+    "#D9534F",
+    "#7B61C9"
+  ],
+  "foreground": "#1E2A3B",
+  "foregroundNeutralSecondary": "#5B6B82",
+  "background": "#FFFFFF",
+  "backgroundLight": "#F5F8FC",
+  "tableAccent": "#1F6FD1",
+  "good": "#2EAD6B",
+  "neutral": "#F29F38",
+  "bad": "#D9534F",
+  "textClasses": {
+    "callout": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 28,
+      "color": "#0C2D61"
+    },
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 14,
+      "color": "#0C2D61"
+    },
+    "header": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 12,
+      "color": "#0C2D61"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 11,
+      "color": "#5B6B82"
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "show": false
+          }
+        ],
+        "border": [
+          {
+            "show": false
+          }
+        ],
+        "dropShadow": [
+          {
+            "show": false
+          }
+        ],
+        "title": [
+          {
+            "fontColor": {
+              "solid": {
+                "color": "#0C2D61"
+              }
+            },
+            "fontFamily": "Segoe UI Semibold",
+            "alignment": "left"
+          }
+        ]
+      }
+    }
+  }
+}
